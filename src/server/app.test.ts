@@ -41,7 +41,7 @@ describe('GET /offers', () => {
     expect(res.statusCode).toBe(200)
     const body = res.json()
     const ids: string[] = body.offers.map((o: { id: string }) => o.id)
-    expect(ids.some((id) => id.startsWith('hysa-switchback') || id.startsWith('ewa-switchback'))).toBe(false)
+    expect(ids).toEqual(['hysa-baseline', 'ewa-baseline'])
     expect(body.count).toBe(body.offers.length)
     expect(body.generatedAt).toBe('2026-10-31T12:00:00.000Z')
   })
