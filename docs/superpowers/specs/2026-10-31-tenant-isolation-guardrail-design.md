@@ -226,7 +226,7 @@ Each row is one red → green → refactor cycle. The test is written and seen t
 
 **CI:** `npm test` runs `tsc --noEmit && vitest run --typecheck`. GitHub Actions runs it on push and pull request.
 
-**Loud-failure proof:** the decisions note records the result of deleting the gate's filter. Tests 4 and 8 fail and name the leaked offer id.
+**Loud-failure proof:** the decisions note records two mutations, each of which must turn a test red with the leaked offer id in the failure message. First, deleting the gate's filter fails test 4. Second, joining over the quotes instead of over the selected offers fails test 8. Each layer has its own test.
 
 ## 9. Out of scope / harden next
 
