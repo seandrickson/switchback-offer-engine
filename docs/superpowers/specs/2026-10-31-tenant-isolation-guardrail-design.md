@@ -36,7 +36,7 @@ Added during design:
 
 ## 3. Stack
 
-- TypeScript (strict), Node 22, ESM (`"type": "module"`).
+- TypeScript (strict), **Node 26 (current LTS)**, ESM (`"type": "module"`). Pinned with `.nvmrc` and `engines: { node: ">=26" }`, and CI uses Node 26. No dependency needs an older Node: Vitest supports `^22.12 || ^24 || >=26`, and Fastify, `jose` and TypeScript have no stricter constraint.
 - **Fastify** for the HTTP layer (the case study's stack for services; no UI, so no Next.js/React).
 - **`jose`** for JWT verification (TypeScript-native, Web Crypto, supports pinned algorithms, issuer, audience and an injected `currentDate`).
 - **Vitest** for runtime tests and type-level tests (`expectTypeOf`, `@ts-expect-error`, `--typecheck`).
