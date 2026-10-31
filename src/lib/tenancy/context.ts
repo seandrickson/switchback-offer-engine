@@ -20,6 +20,8 @@ export class TenantContext<T extends TenantId> {
     this.#tenant = tenant
     this.#userId = userId
     this.#signals = Object.freeze({ ...signals })
+    // Frozen so a real context cannot be relabelled (e.g. an own `tenant` property).
+    Object.freeze(this)
   }
 
   get tenant(): T {
@@ -38,6 +40,10 @@ export class TenantContext<T extends TenantId> {
     return #tenant in x
   }
 }
+
+// Frozen so the tenant getter and isContext cannot be swapped out at runtime.
+Object.freeze(TenantContext)
+Object.freeze(TenantContext.prototype)
 
 export function mintTenantContext<T extends TenantId>(tenant: T, userId: string, signals: Signals): TenantContext<T> {
   return new TenantContext(MINT, tenant, userId, signals)

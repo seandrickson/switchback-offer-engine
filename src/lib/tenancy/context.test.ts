@@ -22,3 +22,19 @@ describe('TenantContext', () => {
     }
   })
 })
+
+describe('TenantContext tamper resistance', () => {
+  it('a real context cannot be relabelled to another tenant', () => {
+    const ctx = mintTenantContext('tenant0', 'u-0', signals)
+    expect(() => Object.defineProperty(ctx, 'tenant', { value: 'switchback' })).toThrow(TypeError)
+    expect(ctx.tenant).toBe('tenant0')
+  })
+
+  it('the class and its prototype cannot be patched', () => {
+    expect(() =>
+      Object.defineProperty(TenantContext.prototype, 'tenant', { get: () => 'switchback' }),
+    ).toThrow(TypeError)
+    expect(() => Object.defineProperty(TenantContext, 'isContext', { value: () => true })).toThrow(TypeError)
+    expect(isTenantContext({ tenant: 'switchback' })).toBe(false)
+  })
+})
