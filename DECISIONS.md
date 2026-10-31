@@ -2,7 +2,7 @@
 
 ## Key decisions
 
-- **Capability token, not a runtime check.** Only the identity layer can create a `TenantContext<T>`. It is a class with an ES `#private` brand and a constructor guarded by a module-private symbol. An object literal that looks like a context fails both `tsc` and `isTenantContext`. An architecture test keeps `mintTenantContext` inside `src/lib/identity/**`.
+- **Capability token, not a runtime check.** Only the identity layer can create a `TenantContext<T>`. It is a class with an ES `#private` brand and a constructor guarded by a module-private symbol. Instances, the class and its prototype are frozen, so a real context can't be relabelled and the `tenant` getter can't be swapped out. An object literal that looks like a context fails both `tsc` and `isTenantContext`. An architecture test (`test/helpers/mint-guard.ts`) keeps `mintTenantContext` inside `src/lib/identity/**`. It also blocks re-exports, namespace imports and dynamic imports of the context module. It checks source text, so it is a guard rather than a proof; a TypeScript-compiler-based check is listed under harden-next.
 - **Illegal states are unrepresentable.** `ExclusiveOffer<T>` resolves to `never` for tenants with no exclusive offers, so `OfferFor<'tenant0'>` *is* `BaselineOffer`. Type-level tests (`@ts-expect-error`, `expectTypeOf`) fail if that ever stops being true.
 - **The tenant comes from the issuer.** The issuer whose key verified the token decides the tenant. A `tenant` claim may only agree with it. Algorithms are pinned to RS256, so `none` and HS256 tokens are rejected. Issuer, audience, `exp` and `sub` are required. jose does not require `exp` by default, so without that rule a non-expiring token would be accepted.
 - **The pricing join runs over the selected offers.** Pricing can set a rate but can never add an offer. Missing quotes and quotes expiring at or before `now` are dropped, so an unverified or stale rate is never shown.
@@ -52,6 +52,14 @@ Other checks: the tenant-0 catalog returning exclusive offers turns the catalog 
 - **JWKS fetching and key rotation** in place of static public keys.
 - **Contract tests** against Supply's real pricing API.
 - **An audit log** of which offers were shown to whom.
+- **Review follow-ups (deferred minors):**
+  - Check the context before calling pricing, so a forged context never reaches Supply.
+  - Require `sub` to be a non-empty string.
+  - Read `scope` fields as own properties, once.
+  - Deep-freeze the catalog's offer and scope objects.
+  - Decode pricing responses so malformed data returns 503 rather than 500.
+  - Match the `Bearer` scheme case-insensitively.
+  - Replace the source-level mint guard with a TypeScript-compiler-based check.
 - **An adversarial and property-based isolation suite** (Dana): generate arbitrary offer lists and contexts, and assert the gate's output never contains an offer the tenant isn't entitled to.
 
 ## Extending it
